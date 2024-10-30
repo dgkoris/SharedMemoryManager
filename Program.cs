@@ -43,9 +43,9 @@ namespace SharedMemoryManager
                     byte[] imageBytes = File.ReadAllBytes(imageFile);
                     var dimensions = serialiser.GetBmpImageDimensions(imageBytes);
 
-                    images.Add(new ImageData(imageBytes, dimensions.width, dimensions.height));
+                    images.Add(new ImageData(imageBytes, dimensions));
 
-                    Console.WriteLine($"Loaded image ({dimensions.width}x{dimensions.height}): {Path.GetFileName(imageFile)}");
+                    Console.WriteLine($"Loaded image ({dimensions.ToString()}): {Path.GetFileName(imageFile)}");
                 }
                 catch (Exception e)
                 {

@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dimensions.cs" />
     <Compile Include="ImageData.cs" />
     <Compile Include="ImageSerialiser.cs" />
     <Compile Include="Program.cs" />
