@@ -15,6 +15,6 @@
             ImageDimensions = imageDimensions;
         }
 
-        public override string ToString() => $"{Name}\t\t{Size} bytes\t{ImageDimensions}";
+        public override string ToString() => $"{Name,-25}\t{Size,8} bytes\t{ImageDimensions}";
     }
 }

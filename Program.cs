@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SharedMemoryManager
 {
@@ -19,7 +20,9 @@ namespace SharedMemoryManager
             ImageSerialiser serialiser = new ImageSerialiser();
             List<byte> serialisedData = serialiser.SerialiseImages(images);
 
-            Console.WriteLine($"\nTotal images: {images.Count}\nSerialised data size:\t\t{serialisedData.Count} bytes");
+            int totalImageSize = images.Sum(image => image.Size);
+
+            Console.WriteLine($"\nTotal images: {images.Count,-24}{totalImageSize,10} bytes");
 
             using (var writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
             {
