@@ -2,10 +2,10 @@
 {
     public class ImageData
     {
-        public byte[] Data { get; set; }
-        public string Name { get; set; }
-        public int Size { get; set; }
-        public Dimensions ImageDimensions { get; set; }
+        public byte[] Data { get; }
+        public string Name { get; }
+        public int Size { get; }
+        public Dimensions ImageDimensions { get; }
 
         public ImageData(byte[] data, string name, int size, Dimensions imageDimensions)
         {

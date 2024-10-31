@@ -15,16 +15,15 @@ namespace SharedMemoryManager
             string solutionDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
             string imageFolderPath = Path.Combine(solutionDirectory, "TestImages");
 
-            var images = LoadBmpImagesFromFolder(imageFolderPath);
+            List<ImageData> images = LoadBmpImagesFromFolder(imageFolderPath);
 
-            ImageSerialiser serialiser = new ImageSerialiser();
-            List<byte> serialisedData = serialiser.SerialiseImages(images);
+            List<byte> serialisedData = ImageSerialiser.SerialiseImages(images);
 
             int totalImageSize = images.Sum(image => image.Size);
 
             Console.WriteLine($"\nTotal images: {images.Count,-24}{totalImageSize,10} bytes");
 
-            using (var writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
+            using (SharedMemoryWriter writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
             {
                 writer.WriteData(serialisedData.ToArray());
 
@@ -38,7 +37,7 @@ namespace SharedMemoryManager
 
         static List<ImageData> LoadBmpImagesFromFolder(string folderPath)
         {
-            var images = new List<ImageData>();
+            List<ImageData> images = new List<ImageData>();
 
             if (!Directory.Exists(folderPath))
             {
@@ -47,16 +46,15 @@ namespace SharedMemoryManager
             }
 
             string[] imageFiles = Directory.GetFiles(folderPath, "*.bmp", SearchOption.AllDirectories);
-            ImageSerialiser serialiser = new ImageSerialiser();
 
-            foreach (var imageFile in imageFiles)
+            foreach (string imageFile in imageFiles)
             {
                 string fileName = Path.GetFileName(imageFile);
 
                 try
                 {
                     byte[] imageBytes = File.ReadAllBytes(imageFile);
-                    var dimensions = serialiser.GetBmpImageDimensions(imageBytes);
+                    Dimensions dimensions = ImageSerialiser.GetBmpImageDimensions(imageBytes);
 
                     ImageData image = new ImageData(imageBytes, fileName, imageBytes.Length, dimensions);
                     images.Add(image);
