@@ -11,6 +11,6 @@
             Height = height;
         }
 
-        public override string ToString() => $"{Width}x{Height}";
+        public override string ToString() => $"({Width}x{Height})";
     }
 }

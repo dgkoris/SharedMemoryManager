@@ -21,6 +21,11 @@ namespace SharedMemoryManager
                 serialisedData.AddRange(BitConverter.GetBytes(image.Data.Length));              // Byte size
                 serialisedData.AddRange(BitConverter.GetBytes(image.ImageDimensions.Width));    // Width
                 serialisedData.AddRange(BitConverter.GetBytes(image.ImageDimensions.Height));   // Height
+
+                string imageName = image.Name;
+                byte[] nameBytes = System.Text.Encoding.UTF8.GetBytes(imageName);
+                serialisedData.AddRange(BitConverter.GetBytes(nameBytes.Length));               // Name length
+                serialisedData.AddRange(nameBytes);                                             // Name bytes
             }
 
             // 3. Append image data

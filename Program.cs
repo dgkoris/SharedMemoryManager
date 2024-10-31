@@ -19,11 +19,13 @@ namespace SharedMemoryManager
             ImageSerialiser serialiser = new ImageSerialiser();
             List<byte> serialisedData = serialiser.SerialiseImages(images);
 
+            Console.WriteLine($"\nTotal images: {images.Count}\nSerialised data size:\t\t{serialisedData.Count} bytes");
+
             using (var writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
             {
                 writer.WriteData(serialisedData.ToArray());
 
-                Console.WriteLine($"Serialised data size: {serialisedData.Count} bytes.\n\nData written to shared memory '{SharedMemoryName}'.\n\nPress Enter to clear the shared memory.");
+                Console.WriteLine($"\nData written to shared memory '{SharedMemoryName}'.\n\nPress Enter to clear the shared memory.");
                 Console.ReadLine();
             }
 
@@ -42,23 +44,25 @@ namespace SharedMemoryManager
             }
 
             string[] imageFiles = Directory.GetFiles(folderPath, "*.bmp", SearchOption.AllDirectories);
-
             ImageSerialiser serialiser = new ImageSerialiser();
 
             foreach (var imageFile in imageFiles)
             {
+                string fileName = Path.GetFileName(imageFile);
+
                 try
                 {
                     byte[] imageBytes = File.ReadAllBytes(imageFile);
                     var dimensions = serialiser.GetBmpImageDimensions(imageBytes);
 
-                    images.Add(new ImageData(imageBytes, dimensions));
+                    ImageData image = new ImageData(imageBytes, fileName, imageBytes.Length, dimensions);
+                    images.Add(image);
 
-                    Console.WriteLine($"Loaded image ({dimensions}): {Path.GetFileName(imageFile)}");
+                    Console.WriteLine($"Loaded image: {image}");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error loading image {Path.GetFileName(imageFile)}: {e.Message}");
+                    Console.WriteLine($"Error loading image {fileName}: {e.Message}");
                 }
             }
 
