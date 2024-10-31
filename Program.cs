@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace SharedMemoryManager
 {
@@ -14,16 +15,19 @@ namespace SharedMemoryManager
             string solutionDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
             string imageFolderPath = Path.Combine(solutionDirectory, "TestImages");
 
-            var images = LoadBmpImagesFromFolder(imageFolderPath);
+            List<ImageData> images = LoadBmpImagesFromFolder(imageFolderPath);
 
-            ImageSerialiser serialiser = new ImageSerialiser();
-            List<byte> serialisedData = serialiser.SerialiseImages(images);
+            List<byte> serialisedData = ImageSerialiser.SerialiseImages(images);
 
-            using (var writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
+            int totalImageSize = images.Sum(image => image.Size);
+
+            Console.WriteLine($"\nTotal images: {images.Count,-24}{totalImageSize,10} bytes");
+
+            using (SharedMemoryWriter writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
             {
                 writer.WriteData(serialisedData.ToArray());
 
-                Console.WriteLine($"Serialised data size: {serialisedData.Count} bytes.\n\nData written to shared memory '{SharedMemoryName}'.\n\nPress Enter to clear the shared memory.");
+                Console.WriteLine($"\nData written to shared memory '{SharedMemoryName}'.\n\nPress Enter to clear the shared memory.");
                 Console.ReadLine();
             }
 
@@ -33,7 +37,7 @@ namespace SharedMemoryManager
 
         static List<ImageData> LoadBmpImagesFromFolder(string folderPath)
         {
-            var images = new List<ImageData>();
+            List<ImageData> images = new List<ImageData>();
 
             if (!Directory.Exists(folderPath))
             {
@@ -43,22 +47,23 @@ namespace SharedMemoryManager
 
             string[] imageFiles = Directory.GetFiles(folderPath, "*.bmp", SearchOption.AllDirectories);
 
-            ImageSerialiser serialiser = new ImageSerialiser();
-
-            foreach (var imageFile in imageFiles)
+            foreach (string imageFile in imageFiles)
             {
+                string fileName = Path.GetFileName(imageFile);
+
                 try
                 {
                     byte[] imageBytes = File.ReadAllBytes(imageFile);
-                    var dimensions = serialiser.GetBmpImageDimensions(imageBytes);
+                    Dimensions dimensions = ImageSerialiser.GetBmpImageDimensions(imageBytes);
 
-                    images.Add(new ImageData(imageBytes, dimensions));
+                    ImageData image = new ImageData(fileName, imageBytes.Length, dimensions, imageBytes);
+                    images.Add(image);
 
-                    Console.WriteLine($"Loaded image ({dimensions}): {Path.GetFileName(imageFile)}");
+                    Console.WriteLine($"Loaded image: {image}");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error loading image {Path.GetFileName(imageFile)}: {e.Message}");
+                    Console.WriteLine($"Error loading image {fileName}: {e.Message}");
                 }
             }
 

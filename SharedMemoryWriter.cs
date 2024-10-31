@@ -12,12 +12,13 @@ namespace SharedMemoryManager
         private MemoryMappedFile _mappedFile;
         private MemoryMappedViewAccessor _viewAccessor;
         private bool _disposed;
+        private readonly object _lockObject = new object();
 
         public SharedMemoryWriter(string sharedMemoryName, long memorySize)
         {
             if (string.IsNullOrEmpty(sharedMemoryName))
             {
-                throw new ArgumentException("Shared memory name cannot be null or empty.", nameof(sharedMemoryName));
+                throw new ArgumentException("Shared memory name can't be null or empty.", nameof(sharedMemoryName));
             }
             if (memorySize <= 0)
             {
@@ -25,19 +26,32 @@ namespace SharedMemoryManager
             }
 
             _memorySize = memorySize;
-
             _mappedFile = MemoryMappedFile.CreateOrOpen(sharedMemoryName, memorySize);
             _viewAccessor = _mappedFile.CreateViewAccessor();
         }
 
-        public void WriteData(byte[] data)
+        public void WriteData(byte[] data, long offset = 0)
         {
-            if (data.Length > _memorySize)
+            if (data == null)
+            {
+                throw new ArgumentNullException(nameof(data), "Data can't be null.");
+            }
+            if (data.Length + offset > _memorySize)
             {
                 throw new ArgumentException("Data size exceeds shared memory capacity.");
             }
 
-            _viewAccessor.WriteArray(0, data, 0, data.Length);
+            try
+            {
+                lock (_lockObject)
+                {
+                    _viewAccessor.WriteArray(offset, data, 0, data.Length);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to write data to shared memory: {e.Message}");
+            }
         }
 
         public void Dispose()

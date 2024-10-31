@@ -2,8 +2,8 @@
 {
     public struct Dimensions
     {
-        public int Width { get; }
-        public int Height { get; }
+        public readonly int Width;
+        public readonly int Height;
 
         public Dimensions(int width, int height)
         {
@@ -11,6 +11,6 @@
             Height = height;
         }
 
-        public override string ToString() => $"{Width}x{Height}";
+        public override string ToString() => $"({Width}x{Height})";
     }
 }
