@@ -5,6 +5,9 @@ namespace SharedMemoryManager
 {
     public class ImageSerialiser
     {
+        /// <summary>
+        /// Serialises image data with metadata before writing to shared memory.
+        /// </summary>
         public List<byte> SerialiseImages(List<ImageData> images)
         {
             List<byte> serialisedData = new List<byte>();

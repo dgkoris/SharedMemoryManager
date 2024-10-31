@@ -6,6 +6,9 @@ namespace SharedMemoryManager
 {
     internal class Program
     {
+        private const string SharedMemoryName = "Local\\SharedMemoryImages";
+        private const int SharedMemorySize = 1024 * 1024 * 100; // 100MB of memory
+
         static void Main(string[] args)
         {
             string solutionDirectory = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.Parent.FullName;
@@ -16,16 +19,22 @@ namespace SharedMemoryManager
             ImageSerialiser serialiser = new ImageSerialiser();
             List<byte> serialisedData = serialiser.SerialiseImages(images);
 
-            // TODO: Send to shared memory.
+            using (var writer = new SharedMemoryWriter(SharedMemoryName, SharedMemorySize))
+            {
+                writer.WriteData(serialisedData.ToArray());
 
-            Console.WriteLine($"Serialised data size: {serialisedData.Count} bytes.\n\nPress Enter to exit...");
+                Console.WriteLine($"Serialised data size: {serialisedData.Count} bytes.\n\nData written to shared memory '{SharedMemoryName}'.\n\nPress Enter to clear the shared memory.");
+                Console.ReadLine();
+            }
+
+            Console.WriteLine("Shared memory cleared!\n\nPress Enter to exit...");
             Console.ReadLine();
         }
 
         static List<ImageData> LoadBmpImagesFromFolder(string folderPath)
         {
             var images = new List<ImageData>();
-            
+
             if (!Directory.Exists(folderPath))
             {
                 Console.WriteLine($"Folder doesn't exist: {folderPath}");
@@ -45,7 +54,7 @@ namespace SharedMemoryManager
 
                     images.Add(new ImageData(imageBytes, dimensions));
 
-                    Console.WriteLine($"Loaded image ({dimensions.ToString()}): {Path.GetFileName(imageFile)}");
+                    Console.WriteLine($"Loaded image ({dimensions}): {Path.GetFileName(imageFile)}");
                 }
                 catch (Exception e)
                 {
