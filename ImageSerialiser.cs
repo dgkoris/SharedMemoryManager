@@ -4,11 +4,17 @@ using System.Text;
 
 namespace SharedMemoryManager
 {
+    /// <summary>
+    /// Provides methods to serialise images and retrieve image dimensions.
+    /// </summary>
     public class ImageSerialiser
     {
         /// <summary>
         /// Serialises image data with metadata before writing to shared memory.
         /// </summary>
+        /// <param name="images">The list of images to serialise.</param>
+        /// <returns>A byte list containing the serialised image data and metadata.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="images"/> is null.</exception>
         public static List<byte> SerialiseImages(List<ImageData> images)
         {
             List<byte> serialisedData = new List<byte>();
@@ -37,6 +43,12 @@ namespace SharedMemoryManager
             return serialisedData;
         }
 
+        /// <summary>
+        /// Retrieves dimensions from a BMP image data byte array.
+        /// </summary>
+        /// <param name="bmpData">The BMP image data.</param>
+        /// <returns>The dimensions of the BMP image.</returns>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="bmpData"/> is not in BMP format.</exception>
         public static Dimensions GetBmpImageDimensions(byte[] bmpData)
         {
             if (bmpData == null)

@@ -14,6 +14,13 @@ namespace SharedMemoryManager
         private bool _disposed;
         private readonly object _lockObject = new object();
 
+        /// <summary>
+        /// Initialises a SharedMemoryWriter instance with the specified shared memory name and size.
+        /// </summary>
+        /// <param name="sharedMemoryName">The name of the shared memory.</param>
+        /// <param name="memorySize">The size of the shared memory in bytes.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="sharedMemoryName"/> is null or empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="memorySize"/> is zero or negative.</exception>
         public SharedMemoryWriter(string sharedMemoryName, long memorySize)
         {
             if (string.IsNullOrEmpty(sharedMemoryName))
@@ -30,6 +37,13 @@ namespace SharedMemoryManager
             _viewAccessor = _mappedFile.CreateViewAccessor();
         }
 
+        /// <summary>
+        /// Writes data to shared memory at the specified offset.
+        /// </summary>
+        /// <param name="data">The byte array containing the data to write.</param>
+        /// <param name="offset">The byte offset in shared memory where data writing begins. Defaults to 0.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when the data size exceeds shared memory capacity.</exception>
         public void WriteData(byte[] data, long offset = 0)
         {
             if (data == null)
@@ -54,6 +68,9 @@ namespace SharedMemoryManager
             }
         }
 
+        /// <summary>
+        /// Releases the resources used by the SharedMemoryWriter instance.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -61,9 +78,9 @@ namespace SharedMemoryManager
         }
 
         /// <summary>
-        /// Enables derived classes to extend the disposal pattern. 
-        /// When overriding, subclasses can add their own resource cleanup without changing the base class's disposal logic.
+        /// Releases resources used by the SharedMemoryWriter. Enables subclasses to extend the disposal pattern.
         /// </summary>
+        /// <param name="disposing">Indicates whether the method is called from Dispose or the finaliser.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (_disposed)
